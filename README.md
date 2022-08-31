@@ -1,4 +1,4 @@
-# taxis-rp-mz-rv-pg-mb
+# taxis-rp-mz-rv-rd-mb
 
 ## Architecture
 
@@ -17,7 +17,7 @@
 
 🔮 The River model is also listening to Materialize for taxi arrivals. Each time a taxi arrives, Materialize joins the original features with the trip duration. This labelled sample is fed into the River model.
 
-🐘 The inference and learning parts coordinate each other by storing the model in a PostgreSQL database.
+📮 The inference and learning parts coordinate each other by storing the model in a Redis instance. The latter acts as a primitive model store.
 
 💅🏻 Metabase is used to monitor the overall system in real-time -- actually, the dashboard is refreshed every 5 seconds, which is good enough.
 
@@ -29,8 +29,8 @@ First, grab the code and run it with [Docker Compose](https://docs.docker.com/co
 
 ```sh
 # Clone it
-git clone https://github.com/MaxHalford/taxi-demo-rp-mz-rv-mb
-cd taxi-demo-rp-mz-rv-mb
+git clone https://github.com/MaxHalford/taxi-demo-rp-mz-rv-rd-mb
+cd taxi-demo-rp-mz-rv-rd-mb
 
 # Run it
 docker-compose up -d
@@ -42,12 +42,18 @@ docker-compose ps
 Next, run the simulation script.
 
 ```py
+# Optionally, use a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+pip install -r simulator/requirements.txt
+
+# Run the simulation, optionally with a speed-up factor
 python simulator/run.py --speed 10
 ```
 
 This will:
 
 1. Create necessary Redpanda topics
-2. Upload a River model to the PostgreSQL database
+2. Upload a River model to Redis
 3. Loop through River's [taxis trips dataset](https://riverml.xyz/0.11.1/api/datasets/Taxis/)
 4. Send the events in their arrival order to Redpanda
