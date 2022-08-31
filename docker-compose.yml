@@ -1,0 +1,40 @@
+version: '3.9'
+services:
+  redpanda:
+    image: docker.redpanda.com/vectorized/redpanda:v21.11.15
+    container_name: redpanda
+    command:
+    - redpanda
+    - start
+    - --smp
+    - '1'
+    - --reserve-memory
+    - 0M
+    - --overprovisioned
+    - --node-id
+    - '0'
+    - --kafka-addr
+    - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+    - --advertise-kafka-addr
+    - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+    - --pandaproxy-addr
+    - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+    - --advertise-pandaproxy-addr
+    - PLAINTEXT://redpanda:28082,OUTSIDE://localhost:8082
+    ports:
+    - 8081:8081
+    - 8082:8082
+    - 9092:9092
+    - 28082:28082
+    - 29092:29092
+  materialized:
+    image: materialize/materialized:v0.22.0
+    container_name: materialized
+    command: -w1 --disable-telemetry
+    ports:
+      - 6875:6875
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
