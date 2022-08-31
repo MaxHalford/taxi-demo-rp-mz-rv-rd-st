@@ -43,20 +43,20 @@ if __name__ == "__main__":
         print(f"Uploaded model '{model_name}'")
 
     # Create topics
-    message_queue_admin = kafka.admin.KafkaAdminClient(bootstrap_servers=[f"{DOCKER_HOST}:{RP_PORT}"])
+    message_bus_admin = kafka.admin.KafkaAdminClient(bootstrap_servers=[f"{DOCKER_HOST}:{RP_PORT}"])
     for topic_name in ['departures', 'arrivals']:
         # First, delete the topic for idempotency reasons
         try:
-            message_queue_admin.delete_topics([topic_name])
+            message_bus_admin.delete_topics([topic_name])
         except kafka.errors.UnknownTopicOrPartitionError:
             ...
         topic = kafka.admin.NewTopic(name=topic_name, num_partitions=3, replication_factor=1)
-        message_queue_admin.create_topics([topic])
+        message_bus_admin.create_topics([topic])
         print(f"Created topic '{topic_name}'")
 
     # Run simulation
     print(f"Running simulation at speed x{args.speed}")
-    message_queue = kafka.KafkaProducer(
+    message_bus = kafka.KafkaProducer(
         bootstrap_servers=[f"{DOCKER_HOST}:{RP_PORT}"],
         key_serializer=str.encode,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             now = trip["pickup_datetime"]
 
             # Emit departure
-            message_queue.send(
+            message_bus.send(
                 topic="departures",
                 key=trip_no,
                 value={**trip, "pickup_datetime": trip["pickup_datetime"].isoformat()}
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         now = arrival_time
 
         # Emit arrival
-        message_queue.send(
+        message_bus.send(
             topic="arrivals",
             key=trip_no,
             value={"arrival_datetime": arrival_time.isoformat()}
