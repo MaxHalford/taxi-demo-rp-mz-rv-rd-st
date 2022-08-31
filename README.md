@@ -5,6 +5,7 @@
 <div  align="center">
     <img width="70%" src="https://user-images.githubusercontent.com/8095957/187721317-59c5b2e3-2414-45b8-a8d4-985e13f0c25a.png">
 </div>
+</br>
 
 🐼 Redpanda acts as a message bus, storing the data produced by the entire system.
 
