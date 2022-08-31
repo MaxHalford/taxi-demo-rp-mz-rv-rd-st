@@ -13,7 +13,7 @@ Each technology has been picked for a particular purpose, but each one could be 
 </div>
 </br>
 
-🐼 Redpanda acts as a message bus, storing the data produced by the entire system.
+🦊 Redpanda acts as a message bus, storing the data produced by the entire system.
 
 🚕 A taxi simulation is run with a Python script. An event is sent to Redpanda each time a taxi departs. The duration of the trip is also sent to Redpanda once the taxi arrives at its destination.
 
