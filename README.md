@@ -1,6 +1,6 @@
-# taxis-rp-mz-rv-rd-mb
+# Predicting (and learning!) taxi trip duration in real-time
 
-A self-contained demo using [Redpanda](https://redpanda.com/), [Materialize](https://materialize.com/), [River](https://riverml.xyz/), [Redis](https://redis.io/), and [Metabase](https://www.metabase.com/) to predict taxi trip durations 🔮
+This is a self-contained demo using [Redpanda](https://redpanda.com/), [Materialize](https://materialize.com/), [River](https://riverml.xyz/), [Redis](https://redis.io/), and [Metabase](https://www.metabase.com/) to predict taxi trip durations 🔮
 
 The purpose of this contrived example is to demonstrate how the streaming analytics ecosystem can work together 🤝
 
