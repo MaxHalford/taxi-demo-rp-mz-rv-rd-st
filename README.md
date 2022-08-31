@@ -4,7 +4,7 @@ This is a self-contained demo using [Redpanda](https://redpanda.com/), [Material
 
 The purpose of this contrived example is to demonstrate how the streaming analytics ecosystem can work together 🤝
 
-Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. Kafka could replace Redpanda. Flink or Bytewax could stand in for Materialize. Redis could be replaced with any other storage software. A different visualization tool than Metabase could be used for monitoring.
+Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. [Kafka](https://kafka.apache.org/) could replace Redpanda. [Flink](https://flink.apache.org/), [Pinot](https://pinot.apache.org/), or [Bytewax](https://www.bytewax.io/) could stand in for Materialize. Redis could be replaced with any other storage backend. A different visualization tool than Metabase could be used for monitoring.
 
 ## Architecture
 
