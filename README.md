@@ -4,6 +4,8 @@ A self-contained demo using [Redpanda](https://redpanda.com/), [Materialize](htt
 
 The purpose of this contrived example is to demonstrate how the streaming analytics ecosystem can work together 🤝
 
+Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. Kafka could replace Redpanda. Flink or Bytewax could stand in for Materialize. Redis could be replaced with any other storage software. A different dashboard than Metabase could be used for visual monitoring. You could also use a batch model that doesn't learn online like River allows you to do.
+
 ## Architecture
 
 <div  align="center">
@@ -59,5 +61,5 @@ This will:
 
 1. Create necessary Redpanda topics
 2. Upload a River model to Redis
-3. Loop through River's [taxis trips dataset](https://riverml.xyz/0.11.1/api/datasets/Taxis/)
-4. Send the events in their arrival order to Redpanda
+3. Loop through River's [taxi trips dataset](https://riverml.xyz/0.11.1/api/datasets/Taxis/)
+4. Send the events in arrival order to Redpanda
