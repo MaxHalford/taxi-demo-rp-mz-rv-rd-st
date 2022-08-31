@@ -2,4 +2,4 @@
 
 ## Architecture
 
-![architecture](https://user-images.githubusercontent.com/8095957/187682765-80d97818-24e4-459b-a1b0-0fddd7014506.png)
+![architecture](https://user-images.githubusercontent.com/8095957/187684728-de06c7ac-481c-457c-9fe5-4c03c6d762e9.png)
