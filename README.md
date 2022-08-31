@@ -3,7 +3,7 @@
 ## Architecture
 
 <div  align="center">
-    <img width="70%" src="https://user-images.githubusercontent.com/8095957/187776476-e489dc7a-3706-4ac5-9201-9f5934ffcfc9.png">
+    <img width="70%" src="https://user-images.githubusercontent.com/8095957/187788485-4d38c15c-8ac4-4294-b3b9-63297ac91071.png">
 </div>
 </br>
 
