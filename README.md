@@ -3,8 +3,9 @@
 ## Architecture
 
 <div  align="center">
-    <img width="70%" src="https://user-images.githubusercontent.com/8095957/187721317-59c5b2e3-2414-45b8-a8d4-985e13f0c25a.png">
+    <img width="70%" src="https://user-images.githubusercontent.com/8095957/187726603-c535e395-d5d8-423d-bd0e-4d2ae984eb3b.png">
 </div>
+
 
 🐼 Redpanda acts as a message bus, storing all the data produced by the entire system.
 
