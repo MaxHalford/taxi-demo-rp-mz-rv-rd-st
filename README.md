@@ -17,13 +17,13 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 🚕 A taxi simulation is run with a Python script. An event is sent to Redpanda each time a taxi departs. The duration of the trip is also sent to Redpanda once the taxi arrives at its destination.
 
-🍥 Materialize consumes the event and label topics from Redpanda, and does stream processing on top. It keeps track of the system, builds aggregate features in real-time, and monitors the model's predictive performance.
+🍥 Materialize consumes the departure and arrival topics from Redpanda, and does stream processing on top. It keeps track of the system as a whole, builds aggregate features in real-time, and monitors the model's predictive performance.
 
-🌊 A River model is listening to Materialize for taxi departures. It makes a prediction each time a taxi departs. The prediction is then sent to Redpanda, and then gets picked up by Materialize.
+🌊 A River model is listening to Materialize for taxi departures. It makes a prediction each time a taxi departs. The prediction is sent to Redpanda, and then gets picked up by Materialize.
 
 🔮 The River model is also listening to Materialize for taxi arrivals. Each time a taxi arrives, Materialize joins the original features with the trip duration. This labelled sample is fed into the River model.
 
-📮 The inference and learning parts coordinate each other by storing the model in a Redis instance. The latter acts as a primitive model store.
+📮 The inference and learning parts coordinate with one another by storing the model in a Redis instance. The latter acts as a primitive model store.
 
 💅🏻 Metabase is used to monitor the overall system in real-time -- actually, the dashboard is refreshed every 5 seconds, which is good enough.
 
