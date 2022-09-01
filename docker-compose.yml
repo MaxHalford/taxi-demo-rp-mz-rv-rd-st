@@ -22,20 +22,26 @@ services:
       - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
       - --advertise-pandaproxy-addr
       - PLAINTEXT://redpanda:28082,OUTSIDE://localhost:8082
+      - --set redpanda.enable_transactions=true
+      - --set redpanda.enable_idempotence=true
     ports:
-      - 8081:8081
-      - 8082:8082
-      - 9092:9092
-      - 28082:28082
-      - 29092:29092
+    - 8081:8081
+    - 8082:8082
+    - 9092:9092
+    - 28082:28082
+    - 29092:29092
   materialized:
-    image: materialize/materialized:v0.22.0
+    image: materialize/materialized:v0.26.4
     container_name: materialized
-    command: -w1 --disable-telemetry
+    command: -w2 --disable-telemetry --log-filter error
     ports:
       - 6875:6875
+  mzcli:
+    image: materialize/cli:v0.26.4
+    container_name: mzcli
   redis:
     image: 'bitnami/redis:latest'
+    container_name: redis
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:

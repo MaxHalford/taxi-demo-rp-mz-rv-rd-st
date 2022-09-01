@@ -4,7 +4,7 @@ This is a self-contained demo using [Redpanda](https://redpanda.com/), [Material
 
 The purpose of this contrived example is to demonstrate how the streaming analytics ecosystem can work together 🤝
 
-Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. [Kafka](https://kafka.apache.org/) could replace Redpanda. [Flink](https://flink.apache.org/), [Pinot](https://pinot.apache.org/), or [Bytewax](https://www.bytewax.io/) could stand in for Materialize. Redis could be replaced with any other storage backend. A different visualization tool than Metabase could be used for monitoring.
+Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. [Kafka](https://kafka.apache.org/) could replace Redpanda. [Flink](https://flink.apache.org/), [Pinot](https://pinot.apache.org/), or [Bytewax](https://www.bytewax.io/) could stand in for Materialize. You may also want to use a feature store such as [Feast](https://www.tecton.ai/feast/) if that floats your boat. Redis could be replaced with any other storage backend, or even a dedicated model store like [MLflow](https://www.mlflow.org/docs/latest/model-registry.html). A different visualization tool than Metabase could be used for monitoring.
 
 ## Architecture
 
@@ -42,7 +42,7 @@ cd taxi-demo-rp-mz-rv-rd-mb
 docker-compose up -d
 
 # See what's running
-docker-compose ps
+docker stats
 ```
 
 Next, run the simulation script.
@@ -51,10 +51,10 @@ Next, run the simulation script.
 # Optionally, use a virtual environment
 python -m venv .venv
 source .venv/bin/activate
-pip install -r simulator/requirements.txt
+pip install -r simulation/requirements.txt
 
 # Run the simulation, with an optional speed-up factor
-python simulator/run.py --speed 10
+python simulation --speed 10
 ```
 
 This will:
@@ -63,3 +63,16 @@ This will:
 2. Upload a River model to Redis
 3. Loop through River's [taxi trips dataset](https://riverml.xyz/0.11.1/api/datasets/Taxis/)
 4. Send the events in arrival order to Redpanda
+
+## Other commands
+
+```sh
+# Listen to Redpanda's 'departures' topic
+docker exec -it redpanda rpk topic consume departures --brokers=localhost:9092
+
+# Connect to Materialize's CLI
+docker-compose run mzcli
+
+# Wipe Docker Compose
+docker-compose down --rmi all -v --remove-orphans
+```
