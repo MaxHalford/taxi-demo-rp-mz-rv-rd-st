@@ -13,10 +13,6 @@ from river import preprocessing
 from river import metrics
 from river import stream
 
-DOCKER_HOST = '127.0.0.1'
-RP_PORT = 9092
-RD_PORT = 6379
-
 class colors:
     GREEN = "\033[92m"
     BLUE = "\033[94m"
@@ -33,7 +29,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Store model
-    model_store = redis.Redis(host=DOCKER_HOST, port=RD_PORT)
+    model_store = redis.Redis(host="redis", port=6379)
     models = {
         'super-vanilla-model': preprocessing.StandardScaler() | linear_model.LinearRegression()
     }
@@ -43,7 +39,7 @@ if __name__ == "__main__":
         print(f"Uploaded model '{model_name}'")
 
     # Create topics
-    message_bus_admin = kafka.admin.KafkaAdminClient(bootstrap_servers=[f"{DOCKER_HOST}:{RP_PORT}"])
+    message_bus_admin = kafka.admin.KafkaAdminClient(bootstrap_servers=["redpanda:9092"])
     for topic_name in ['departures', 'arrivals']:
         # First, delete the topic for idempotency reasons
         try:
@@ -57,7 +53,7 @@ if __name__ == "__main__":
     # Run simulation
     print(f"Running simulation at speed x{args.speed}")
     message_bus = kafka.KafkaProducer(
-        bootstrap_servers=[f"{DOCKER_HOST}:{RP_PORT}"],
+        bootstrap_servers=["redpanda:9092"],
         key_serializer=str.encode,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     )

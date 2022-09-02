@@ -1,44 +1,44 @@
-version: '3.9'
-
+version: '3.7'
 services:
   redpanda:
-    image: docker.redpanda.com/vectorized/redpanda:v21.11.15
+    image: docker.vectorized.io/vectorized/redpanda:v21.9.5
     container_name: redpanda
     command:
-      - redpanda
-      - start
-      - --smp
-      - '1'
-      - --reserve-memory
-      - 0M
-      - --overprovisioned
-      - --node-id
-      - '0'
-      - --kafka-addr
-      - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
-      - --advertise-kafka-addr
-      - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
-      - --pandaproxy-addr
-      - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
-      - --advertise-pandaproxy-addr
-      - PLAINTEXT://redpanda:28082,OUTSIDE://localhost:8082
-      - --set redpanda.enable_transactions=true
-      - --set redpanda.enable_idempotence=true
+     - redpanda start
+     - --overprovisioned
+     - --smp 1
+     - --memory 1G
+     - --reserve-memory 0M
+     - --node-id 0
+     - --check=false
+     - --kafka-addr 0.0.0.0:9092
+     - --advertise-kafka-addr redpanda:9092
+     - --pandaproxy-addr 0.0.0.0:8082
+     - --advertise-pandaproxy-addr redpanda:8082
+    environment:
+      - AUTO_CREATE_TOPICS_ENABLED=true
     ports:
-    - 8081:8081
-    - 8082:8082
-    - 9092:9092
-    - 28082:28082
-    - 29092:29092
+     - 9092:9092
+     - 8081:8081
+     - 8082:8082
+  simulation:
+    build: ./simulation
+    image: simulation:latest
+    container_name: simulation
+    depends_on:
+      - redpanda
+  inference:
+    build: ./inference
+    image: inference:latest
+    container_name: inference
+    depends_on:
+      - redpanda
   materialized:
-    image: materialize/materialized:v0.26.4
-    container_name: materialized
-    command: -w2 --disable-telemetry --log-filter error
+    image: materialize/materialized:v0.12.0
+    container_name: materialize
+    command: -w1 --disable-telemetry
     ports:
       - 6875:6875
-  mzcli:
-    image: materialize/cli:v0.26.4
-    container_name: mzcli
   redis:
     image: 'bitnami/redis:latest'
     container_name: redis

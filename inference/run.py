@@ -1,6 +1,6 @@
 import psycopg
 
-dsn = "postgresql://materialize@localhost:6875/materialize?sslmode=disable"
+dsn = "postgresql://materialize@materialize:6875/materialize?sslmode=disable"
 conn = psycopg.connect(dsn)
 conn.autocommit = True
 
@@ -42,9 +42,9 @@ CREATE VIEW departures AS (
 
     """)
 
-with conn.cursor() as cur:
-    cur.execute("SHOW VIEWS")
-    print(cur.fetchall())
+# with conn.cursor() as cur:
+#     cur.execute("SHOW VIEWS")
+#     print(cur.fetchall())
 
 conn = psycopg.connect(dsn)
 
