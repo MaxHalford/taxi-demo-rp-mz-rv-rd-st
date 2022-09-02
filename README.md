@@ -23,7 +23,7 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 🔮 The River model is also listening to Materialize for taxi arrivals. Each time a taxi arrives, Materialize joins the original features with the trip duration. This labelled sample is fed into the River model.
 
-📮 The inference and learning parts coordinate with one another by storing the model in a Redis instance. The latter acts as a primitive model store.
+📮 The [inference](inference/) and [learning](learning/) services coordinate with one another by storing the model in a Redis instance. The latter acts as a primitive model store.
 
 💅🏻 Metabase is used to monitor the overall system in real-time -- actually, the dashboard is refreshed every 5 seconds, which is good enough.
 

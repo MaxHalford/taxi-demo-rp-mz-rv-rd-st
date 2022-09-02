@@ -32,6 +32,7 @@ services:
     image: inference:latest
     container_name: inference
     depends_on:
+      - materialized
       - redpanda
   materialized:
     image: materialize/materialized:v0.12.0
