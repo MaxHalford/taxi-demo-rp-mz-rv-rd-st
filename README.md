@@ -29,9 +29,11 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 🐳 The system is Dockerized, which reduces the burden of connecting the different parts with each other.
 
-## Running it
+## Video demonstation
 
-First, grab the code and run it with [Docker Compose](https://docs.docker.com/compose/).
+## Running it yourself
+
+Grab the code and run it with [Docker Compose](https://docs.docker.com/compose/):
 
 ```sh
 # Clone it
@@ -40,7 +42,11 @@ cd taxi-demo-rp-mz-rv-rd-mb
 
 # Run it
 docker-compose up -d
+```
 
+Here are some useful commands:
+
+```sh
 # See what's running
 docker stats
 
@@ -48,11 +54,7 @@ docker stats
 docker compose logs simulation -f
 docker compose logs inference -f
 docker compose logs learning -f
-```
 
-## Other commands
-
-```sh
 # Listen to Redpanda's 'departures' topic
 docker exec -it redpanda rpk topic consume departures --brokers=localhost:9092
 
