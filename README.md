@@ -15,7 +15,7 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 🦊 Redpanda acts as a message bus, storing the data produced by the entire system.
 
-🚕 A taxi simulation is run with a Python script. An event is sent to Redpanda each time a taxi departs. The duration of the trip is also sent to Redpanda once the taxi arrives at its destination.
+🚕 Taxi trips are [simulated](simulation/) with a Python script. An event is sent to Redpanda each time a taxi departs. The duration of the trip is also sent to Redpanda once the taxi arrives at its destination.
 
 🍥 Materialize consumes the departure and arrival topics from Redpanda, and does stream processing on top. It keeps track of the system as a whole, builds aggregate features in real-time, and monitors the model's predictive performance.
 
