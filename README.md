@@ -9,8 +9,9 @@ Each technology has been picked for a particular purpose, but each one could be 
 ## Architecture
 
 <div align="center">
-    <img width="80%" src="https://user-images.githubusercontent.com/8095957/187788485-4d38c15c-8ac4-4294-b3b9-63297ac91071.png">
+    <img width="80%" src="https://user-images.githubusercontent.com/8095957/190930718-f044416f-f65f-4833-93a0-9a2a4d2036fc.png">
 </div>
+
 </br>
 
 🦊 Redpanda acts as a message bus, storing the data produced by the entire system.
