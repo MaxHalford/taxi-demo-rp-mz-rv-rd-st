@@ -8,7 +8,7 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 ## Architecture
 
-<div  align="center">
+<div align="center">
     <img width="80%" src="https://user-images.githubusercontent.com/8095957/187788485-4d38c15c-8ac4-4294-b3b9-63297ac91071.png">
 </div>
 </br>
@@ -17,11 +17,11 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 🚕 Taxi trips are [simulated](simulation/) with a Python script. An event is sent to Redpanda each time a taxi departs. The duration of the trip is also sent to Redpanda once the taxi arrives at its destination.
 
-🍥 Materialize consumes the departure and arrival topics from Redpanda, and does stream processing on top. It keeps track of the system as a whole, builds aggregate features in real-time, and monitors the model's predictive performance.
+🍥 Materialize consumes the pick-up and drop-off topics from Redpanda, and does stream processing on top. It keeps track of the system as a whole, builds aggregate features in real-time, and monitors the model's predictive performance.
 
-🌊 A River model is listening to Materialize for taxi departures. It makes a prediction each time a taxi departs. The prediction is sent to Redpanda, and then gets picked up by Materialize.
+🌊 A River model is listening to Materialize for taxi pick-ups. It makes a prediction each time a taxi departs. The prediction is sent to Redpanda, and then gets picked up by Materialize.
 
-🔮 The River model is also listening to Materialize for taxi arrivals. Each time a taxi arrives, Materialize joins the original features with the trip duration. This labelled sample is fed into the River model.
+🔮 The River model is also listening to Materialize for taxi drop-off. Each time a taxi arrives, Materialize joins the original features with the trip duration. This labelled sample is fed into the River model.
 
 📮 The [inference](inference/) and [learning](learning/) services coordinate with one another by storing the model in a Redis instance. The latter acts as a primitive model store.
 
@@ -30,6 +30,8 @@ Each technology has been picked for a particular purpose, but each one could be 
 🐳 The system is Dockerized, which reduces the burden of connecting the different parts with each other.
 
 ## Video demonstation
+
+https://www.metabase.com/docs/latest/installation-and-operation/backing-up-metabase-application-data
 
 ## Running it yourself
 
@@ -55,9 +57,28 @@ docker compose logs simulation -f
 docker compose logs inference -f
 docker compose logs learning -f
 
-# Listen to Redpanda's 'departures' topic
-docker exec -it redpanda rpk topic consume departures --brokers=localhost:9092
+# Listen to Redpanda's 'pick-ups' topic
+docker exec -it redpanda rpk topic consume pick-ups --brokers=localhost:9092
 
 # Clean slate
 docker compose down --rmi all -v --remove-orphans
 ```
+
+## Going further
+
+This demo is only way of doing online machine learning. It's also quite narrow, as it's a supervised learning task, which is arguably simpler to reason about than, say, a recommender system. There are a lot of rabbit holes to explore. Here are a bunch of thoughts organised into paragraphs to give some food for thought.
+
+The features `x` used during inference are stored aside -- in the message bus. They are then joined -- thanks to Materialize -- with the label `y` once it arrives. That pair `(x, y)` is fed into the model for learning. This called the "log and wait" technique. You can read more about it from Fennel AI [here](https://blog.fennel.ai/p/real-world-recommendation-systems), from Tecton [here](https://www.tecton.ai/blog/time-travel-in-ml/), and from Faire [here](https://craft.faire.com/building-faires-new-marketplace-ranking-infrastructure-a53bf938aba0).
+
+Materialize is arguably doing most of the work in this setup. It's quite impressive how much you can do with a database and a query language on top. This is even more so true when the database does stream processing. There's many good reasons to push computation into the database. For instance, doing real-time feature engineering with Materialize is much more efficient than doing it in Python. Likewise, it's very easy to do performance monitoring in SQL once you've logged the predictions and the labels. You can read more about this "bundling into the database" idea from Ethan Rosenthal [here](https://www.ethanrosenthal.com/2022/05/10/database-bundling/).
+
+# TODO: reactive vs. proactive, message bus vs. API call
+# TODO: listening to Materialize rather than Redpanda
+# TODO: feature storage
+# TODO: inference/learning sync
+# TODO: model selection
+# TODO: Scaling, federated learning
+
+## License
+
+This is free and open-source software licensed under the [MIT license](LICENSE).

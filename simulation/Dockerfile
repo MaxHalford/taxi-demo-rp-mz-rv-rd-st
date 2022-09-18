@@ -1,5 +1,6 @@
 FROM python:3.8-slim
-ADD requirements.txt /
+WORKDIR /app
+COPY requirements.txt ./
 RUN pip install -r requirements.txt
-ADD run.py /
+COPY . .
 CMD ["python", "-u", "./run.py", "--speed", "10"]

@@ -11,7 +11,9 @@ from river import datasets
 from river import linear_model
 from river import preprocessing
 from river import metrics
+from river import neighbors
 from river import stream
+from river import tree
 
 class colors:
     GREEN = "\033[92m"
@@ -31,7 +33,10 @@ if __name__ == "__main__":
     # Store model
     model_store = redis.Redis(host="redis", port=6379)
     models = {
-        'super-vanilla-model': preprocessing.StandardScaler() | linear_model.LinearRegression()
+        'linear-regression': preprocessing.StandardScaler() | linear_model.LinearRegression(),
+        'bayesian-linear-regression': preprocessing.StandardScaler() | linear_model.BayesianLinearRegression(),
+        'decision-tree': tree.HoeffdingTreeRegressor(),
+        'nearest-neighbors': preprocessing.StandardScaler() | neighbors.KNNRegressor(),
     }
     for model_name, model in models.items():
         model_bytes = dill.dumps(model)
@@ -40,7 +45,7 @@ if __name__ == "__main__":
 
     # Create topics
     message_bus_admin = kafka.admin.KafkaAdminClient(bootstrap_servers=["redpanda:9092"])
-    for topic_name in ['departures', 'arrivals']:
+    for topic_name in ['pick-ups', 'drop-offs']:
         # First, delete the topic for idempotency reasons
         try:
             message_bus_admin.delete_topics([topic_name])
@@ -58,7 +63,7 @@ if __name__ == "__main__":
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     )
 
-    # Use the first trip's departure time as a reference time
+    # Use the first trip's pick-up time as a reference time
     taxis = datasets.Taxis()
     now = next(iter(taxis))[0]["pickup_datetime"]
 
@@ -77,33 +82,33 @@ if __name__ == "__main__":
             sleep(trip["pickup_datetime"] - now)
             now = trip["pickup_datetime"]
 
-            # Emit departure
+            # Emit pick-up
             message_bus.send(
-                topic="departures",
+                topic="pick-ups",
                 key=trip_no,
                 value={**trip, "pickup_datetime": trip["pickup_datetime"].isoformat()}
             )
 
-            print(colors.GREEN + f"#{trip_no} departs at {now}" + colors.ENDC)
+            print(colors.GREEN + f"#{trip_no} pick-up at {now}" + colors.ENDC)
             continue
 
         # Taxi trip ends
 
         # Wait
-        arrival_time = trip["pickup_datetime"] + dt.timedelta(seconds=duration)
-        sleep(arrival_time - now)
-        now = arrival_time
+        drop_off_at = trip["pickup_datetime"] + dt.timedelta(seconds=duration)
+        sleep(drop_off_at - now)
+        now = drop_off_at
 
-        # Emit arrival
+        # Emit drop-off
         message_bus.send(
-            topic="arrivals",
+            topic="drop-offs",
             key=trip_no,
-            value={"arrival_datetime": arrival_time.isoformat()}
+            value={"drop_off_datetime": drop_off_at.isoformat()}
         )
 
-        # Log arrival and compare prediction against ground truth
+        # Log drop-off and compare prediction against ground truth
         print(
             colors.BLUE
-            + f"#{trip_no} arrives at {now}, took {dt.timedelta(seconds=duration)}"
+            + f"#{trip_no} drop-off at {now}, took {dt.timedelta(seconds=duration)}"
             + colors.ENDC
         )

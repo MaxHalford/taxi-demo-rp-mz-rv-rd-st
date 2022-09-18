@@ -1,4 +1,4 @@
-dill
-kafka-python
-redis
-river
+dill==0.3.5.1
+kafka-python==2.0.2
+redis==4.3.4
+river==0.13.0
