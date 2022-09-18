@@ -7,22 +7,19 @@ import dill
 import kafka
 import kafka.admin
 import redis
-from river import datasets
-from river import linear_model
-from river import preprocessing
-from river import metrics
-from river import neighbors
-from river import stream
-from river import tree
+from river import datasets, linear_model, metrics, neighbors, preprocessing, stream, tree
+
 
 class colors:
     GREEN = "\033[92m"
     BLUE = "\033[94m"
     ENDC = "\033[0m"
 
+
 def sleep(td: dt.timedelta):
     if td.seconds > 0:
         time.sleep(td.seconds / args.speed)
+
 
 if __name__ == "__main__":
 
@@ -33,10 +30,11 @@ if __name__ == "__main__":
     # Store model
     model_store = redis.Redis(host="redis", port=6379)
     models = {
-        'linear-regression': preprocessing.StandardScaler() | linear_model.LinearRegression(),
-        'bayesian-linear-regression': preprocessing.StandardScaler() | linear_model.BayesianLinearRegression(),
-        'decision-tree': tree.HoeffdingTreeRegressor(),
-        'nearest-neighbors': preprocessing.StandardScaler() | neighbors.KNNRegressor(),
+        "linear-regression": preprocessing.StandardScaler() | linear_model.LinearRegression(),
+        "bayesian-linear-regression": preprocessing.StandardScaler()
+        | linear_model.BayesianLinearRegression(),
+        "decision-tree": tree.HoeffdingAdaptiveTreeRegressor(),
+        "nearest-neighbors": preprocessing.StandardScaler() | neighbors.KNNRegressor(),
     }
     for model_name, model in models.items():
         model_bytes = dill.dumps(model)
@@ -45,7 +43,7 @@ if __name__ == "__main__":
 
     # Create topics
     message_bus_admin = kafka.admin.KafkaAdminClient(bootstrap_servers=["redpanda:9092"])
-    for topic_name in ['pick-ups', 'drop-offs']:
+    for topic_name in ["pick-ups", "drop-offs"]:
         # First, delete the topic for idempotency reasons
         try:
             message_bus_admin.delete_topics([topic_name])
@@ -68,9 +66,7 @@ if __name__ == "__main__":
     now = next(iter(taxis))[0]["pickup_datetime"]
 
     for trip_no, trip, duration in stream.simulate_qa(
-        taxis,
-        moment="pickup_datetime",
-        delay=lambda _, duration: dt.timedelta(seconds=duration),
+        taxis, moment="pickup_datetime", delay=lambda _, duration: dt.timedelta(seconds=duration),
     ):
         trip_no = str(trip_no).zfill(len(str(taxis.n_samples)))
 
@@ -86,7 +82,7 @@ if __name__ == "__main__":
             message_bus.send(
                 topic="pick-ups",
                 key=trip_no,
-                value={**trip, "pickup_datetime": trip["pickup_datetime"].isoformat()}
+                value={**trip, "pickup_datetime": trip["pickup_datetime"].isoformat()},
             )
 
             print(colors.GREEN + f"#{trip_no} pick-up at {now}" + colors.ENDC)
@@ -101,9 +97,7 @@ if __name__ == "__main__":
 
         # Emit drop-off
         message_bus.send(
-            topic="drop-offs",
-            key=trip_no,
-            value={"drop_off_datetime": drop_off_at.isoformat()}
+            topic="drop-offs", key=trip_no, value={"drop_off_datetime": drop_off_at.isoformat()},
         )
 
         # Log drop-off and compare prediction against ground truth

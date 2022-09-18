@@ -21,30 +21,14 @@ services:
      - 9092:9092
      - 8081:8081
      - 8082:8082
+
   materialize:
     image: materialize/materialized:v0.12.0
     container_name: materialize
     command: -w1 --disable-telemetry
     ports:
       - 6875:6875
-  simulation:
-    build: ./simulation
-    image: simulation:latest
-    container_name: simulation
-    depends_on:
-      - redpanda
-    volumes:
-      - ./simulation:/app
-  inference:
-    build: ./inference
-    image: inference:latest
-    container_name: inference
-    depends_on:
-      - materialize
-      - redpanda
-      - simulation
-    volumes:
-      - ./inference:/app
+
   redis:
     image: 'bitnami/redis:latest'
     container_name: redis
@@ -52,10 +36,73 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - 6379:6379
-  metabase:
-    image: metabase/metabase:v0.44.2
-    container_name: metabase
+
+  simulation:
+    build: ./simulation
+    image: simulation:latest
+    container_name: simulation
     depends_on:
-       - materialize
+      - redpanda
+      - redis
+    volumes:
+      - ./simulation:/app
+
+  inference:
+    build: ./inference
+    image: inference:latest
+    container_name: inference
+    depends_on:
+      - materialize
+      - simulation
+    volumes:
+      - ./inference:/app
+
+  learning:
+    build: ./learning
+    image: learning:latest
+    container_name: learning
+    depends_on:
+      - materialize
+      - inference
+    volumes:
+      - ./learning:/app
+
+  metabase-db:
+    container_name: metabase-db
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=PASWORD
+      - POSTGRES_USER=USERNAME
+      - POSTGRES_DB=DATABASE
+    ports:
+      - 5432:5432
+    volumes:
+      - ./metabase-db-data:/var/lib/postgresql/data
+    networks:
+      - postgres-network
+
+  metabase:
+    container_name: metabase
+    image: metabase/metabase:v0.44.2
+    volumes:
+      - ./metabase-data:/metabase-data
+    environment:
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=DATABASE
+      - MB_DB_PORT=5432
+      - MB_DB_USER=USERNAME
+      - MB_DB_PASS=PASWORD
+      - MB_DB_HOST=metabase-db
     ports:
       - 3000:3000
+    restart: always
+    depends_on:
+      - metabase-db
+      - materialize
+    networks:
+      - postgres-network
+
+networks:
+  postgres-network:
+    driver: bridge

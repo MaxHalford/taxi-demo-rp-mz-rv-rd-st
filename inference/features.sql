@@ -6,6 +6,7 @@ CREATE VIEW features AS (
             EXTRACT(HOUR FROM pick_up_at) AS pick_up_hour,
             ABS(pick_up_longitude - drop_off_longitude) + ABS(pick_up_latitude - drop_off_latitude) AS l1_distance
         FROM pick_ups
+        WHERE trip_id NOT IN (SELECT trip_id FROM predictions)
     ),
 
     completed_trips AS (

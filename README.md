@@ -46,7 +46,9 @@ cd taxi-demo-rp-mz-rv-rd-mb
 docker-compose up -d
 ```
 
-Here are some useful commands:
+http://localhost:3000/dashboard/1-monitoring#refresh=1
+
+Here are some useful commands you may use:
 
 ```sh
 # See what's running
@@ -57,8 +59,8 @@ docker compose logs simulation -f
 docker compose logs inference -f
 docker compose logs learning -f
 
-# Listen to Redpanda's 'pick-ups' topic
-docker exec -it redpanda rpk topic consume pick-ups --brokers=localhost:9092
+# See the predictions flowing in
+docker exec -it redpanda rpk topic consume predictions --brokers=localhost:9092
 
 # Clean slate
 docker compose down --rmi all -v --remove-orphans

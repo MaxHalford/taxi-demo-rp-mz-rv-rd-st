@@ -1,15 +1,15 @@
 import datetime as dt
-import dill
 import json
+
+import dill
 import kafka
 import kafka.admin
 import psycopg
 import redis
 
-
 """
-We first create the views which consume the data from the topics. There is one view for pick-ups
-and one for drop-offs.
+We first create the views which consume the data from the topics. There is one view for pick-ups,
+one for drop-offs, and one for predictions.
 """
 
 dsn = "postgresql://materialize@materialize:6875/materialize?sslmode=disable"
@@ -17,30 +17,22 @@ conn = psycopg.connect(dsn)
 conn.autocommit = True
 
 with conn.cursor() as cur:
-    try:
-        cur.execute("DROP SOURCE pick_ups_src CASCADE;")
-    except Exception as e:
-        print(e)
+    for source in ("predictions", "pick_ups", "drop_offs"):
+        try:
+            cur.execute(f"DROP SOURCE {source}_src CASCADE;")
+        except Exception as e:
+            print(e)
 
-    with open('pick_ups.sql') as f:
-        for q in f.read().split(';'):
-            cur.execute(q)
-
-    try:
-        cur.execute("DROP SOURCE drop_offs_src CASCADE;")
-    except Exception as e:
-        print(e)
-
-    with open('drop_offs.sql') as f:
-        for q in f.read().split(';'):
-            cur.execute(q)
+        with open(f"{source}.sql") as f:
+            for q in f.read().split(";"):
+                cur.execute(q)
 
 """
 Next we define a view holding the trips for which a prediction has to be made.
 """
 
 with conn.cursor() as cur:
-    with open('features.sql') as f:
+    with open("features.sql") as f:
         cur.execute(f.read())
 
 # Let's query the view to see what it contains. That way we can associate each feature with a name.
@@ -49,7 +41,7 @@ conn.autocommit = False
 with conn.cursor() as cur:
     cur.execute("SHOW COLUMNS FROM features")
     schema = cur.fetchall()
-    columns = ['mz_timestamp', 'mz_diff'] + [c[0] for c in schema]
+    columns = ["mz_timestamp", "mz_diff"] + [c[0] for c in schema]
 
 """
 Create predictions topic where we will write the predictions.
@@ -85,9 +77,9 @@ with conn.cursor() as cur:
 
         # We only want to make predictions for trips that have not been seen before
         trip_features = dict(zip(columns, row))
-        del trip_features['mz_timestamp']
-        del trip_features['mz_diff']
-        if (trip_id := trip_features.pop('trip_id')) in trip_ids_seen:
+        del trip_features["mz_timestamp"]
+        del trip_features["mz_diff"]
+        if (trip_id := trip_features.pop("trip_id")) in trip_ids_seen:
             continue
         trip_ids_seen.add(trip_id)
 
@@ -98,6 +90,7 @@ with conn.cursor() as cur:
                 for model_name in map(bytes.decode, model_store.scan_iter())
             }
             models_last_retrieved_at = now
+            print("Refreshed models")
 
         # Make predictions for each model
         for model_name, model in models.items():
@@ -105,8 +98,5 @@ with conn.cursor() as cur:
             message_bus.send(
                 topic="predictions",
                 key=f"{trip_id}#{model_name}",
-                value={
-                    "features": trip_features,
-                    "prediction": predicted_duration
-                },
+                value={"features": trip_features, "prediction": predicted_duration},
             )
