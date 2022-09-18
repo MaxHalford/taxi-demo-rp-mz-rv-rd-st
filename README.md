@@ -1,6 +1,6 @@
 # Predicting (and learning) taxi trip durations in real-time
 
-This is a self-contained demo using [Redpanda](https://redpanda.com/), [Materialize](https://materialize.com/), [River](https://riverml.xyz/), [Redis](https://redis.io/), and [Metabase](https://www.metabase.com/) to predict taxi trip durations 🔮
+This is a self-contained demo using [Redpanda](https://redpanda.com/), [Materialize](https://materialize.com/), [River](https://riverml.xyz/), [Redis](https://redis.io/), and [Streamlit](https://streamlit.io/) to predict taxi trip durations 🔮
 
 The purpose of this contrived example is to demonstrate how the streaming analytics ecosystem can work together 🤝
 
@@ -26,13 +26,11 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 📮 The [inference](inference/) and [learning](learning/) services coordinate with one another by storing the model in a Redis instance. The latter acts as a primitive model store.
 
-💅🏻 Metabase is used to monitor the overall system in real-time -- actually, the dashboard is refreshed every 5 seconds, which is good enough.
+💅🏻 Streamlit is used to monitor the overall system in real-time.
 
 🐳 The system is Dockerized, which reduces the burden of connecting the different parts with each other.
 
 ## Video demonstation
-
-https://www.metabase.com/docs/latest/installation-and-operation/backing-up-metabase-application-data
 
 ## Running it yourself
 
@@ -47,9 +45,9 @@ cd taxi-demo-rp-mz-rv-rd-mb
 docker-compose up -d
 ```
 
-http://localhost:3000/dashboard/1-monitoring#refresh=1
+Then go to [localhost:8501](http://localhost:8501/) to access the live dashboard.
 
-Here are some useful commands you may use:
+Here are some useful commands you may use additionally:
 
 ```sh
 # See what's running
