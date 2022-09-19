@@ -64,8 +64,8 @@ Grab the code and run it with [Docker Compose](https://docs.docker.com/compose/)
 
 ```sh
 # Clone it
-git clone https://github.com/MaxHalford/taxi-demo-rp-mz-rv-rd-mb
-cd taxi-demo-rp-mz-rv-rd-mb
+git clone https://github.com/MaxHalford/taxi-demo-rp-mz-rv-rd-st
+cd taxi-demo-rp-mz-rv-rd-st
 
 # Run it
 docker-compose up -d
