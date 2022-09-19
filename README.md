@@ -30,6 +30,8 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 🐳 The system is Dockerized, which reduces the burden of connecting the different parts with each other.
 
+✍️ The whole thing is made up of ~220 lines of Python, ~120 lines of SQL, and ~100 lines of YAML/Dockerfile.
+
 ## Demo
 
 The first service is in charge of simulating the data stream. For each trip, it first emits an event indicating a taxi has departed. Another event is sent once the taxi arrives. This is all managed by the [`simulation`](simulation) service, which loops over the data at 10 times the actual speed the events occur in the dataset. Before this all happens, the service also uploads some models to Redis, which acts as a model store.
