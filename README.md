@@ -4,8 +4,6 @@ This is a self-contained demo using [Redpanda](https://redpanda.com/), [Material
 
 The purpose of this contrived example is to demonstrate how the streaming analytics ecosystem can work together 🤝
 
-Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. [Kafka](https://kafka.apache.org/) could replace Redpanda. [Flink](https://flink.apache.org/), [Pinot](https://pinot.apache.org/), or [Bytewax](https://www.bytewax.io/) could stand in for Materialize. You may also want to use a feature store such as [Feast](https://www.tecton.ai/feast/) if that floats your boat. Redis could be replaced with any other storage backend, or even a dedicated model store like [MLflow](https://www.mlflow.org/docs/latest/model-registry.html). Any other dashboarding tool other than Streamlit could be used for visual monitoring.
-
 ## Architecture
 
 <div align="center">
@@ -96,6 +94,8 @@ docker compose down --rmi all -v --remove-orphans
 ## Going further
 
 This demo is only one way of doing online machine learning. It's also quite narrow, as it's a supervised learning task, which is arguably simpler to reason about than, say, a recommender system. There are a lot of rabbit holes to explore. Here are a bunch of thoughts loosely organised to give some food for thought.
+
+Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. [Kafka](https://kafka.apache.org/) could replace Redpanda. [Flink](https://flink.apache.org/), [Pinot](https://pinot.apache.org/), or [Bytewax](https://www.bytewax.io/) could stand in for Materialize. You may also want to use a feature store such as [Feast](https://www.tecton.ai/feast/) if that floats your boat. Redis could be replaced with any other storage backend, or even a dedicated model store like [MLflow](https://www.mlflow.org/docs/latest/model-registry.html). Any other dashboarding tool other than Streamlit could be used for visual monitoring.
 
 The features `x` used during inference are stored aside -- in the message bus. They are then joined -- thanks to Materialize -- with the label `y` once it arrives. That pair `(x, y)` is fed into the model for learning. This is called the "log and wait" technique. You can read more about it from Fennel AI [here](https://blog.fennel.ai/p/real-world-recommendation-systems), from Tecton [here](https://www.tecton.ai/blog/time-travel-in-ml/), and from Faire [here](https://craft.faire.com/building-faires-new-marketplace-ranking-infrastructure-a53bf938aba0).
 
