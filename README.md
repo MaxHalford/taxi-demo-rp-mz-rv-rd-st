@@ -50,6 +50,7 @@ At this point, there are three topics in RedPanda: `drop_offs`, `pick_ups`, and 
 <div align="center">
     <img width="70%" src="screenshots/monitoring.gif">
 </div>
+</br>
 
 The `predictions` topic, which holds the `features` were used, is joined with the other topics to generate labelled data. This is listened to by the [`learning`](learning) service. The latter updates each model every time a trip ends. The models are sent back to Redis every 30 seconds. The `inference` service also refreshes its models every 30 seconds. Redis thus acts as a dead drop for the `inference` and `learning` services to coordinate with another.
 
@@ -100,11 +101,11 @@ Materialize is arguably doing most of the work in this setup. It's quite impress
 
 This system is event-driven. The simulation, which is the client, doesn't ask the system to make a prediction. Instead, it queues a taxi departure event into the system. It could then poll the system until a prediction has been made. An alternative would have been to expose an API with blocking calls. When you design an (online) machine learning system, a major decision has to be made between a reactive system driven by events, and a proactive system driven by API calls.
 
-The inference and learning services are listening to Materialize. The advantage here is that Materialize takes care of enriching the events, for instance with features, and passed them on the services. The services don't have to do this enrichment process themselves. An alternative would have been to listen to events with RedPanda, calculate features in Materialize, and join the events with the features when necessary. The downside of this is that it implies more networking.
+The inference and learning services are listening to Materialize. The advantage here is that Materialize takes care of enriching the events, for instance with features, and passes them on the services. The services don't have to do this enrichment process themselves. An alternative would have been to listen to events with RedPanda, calculate features in Materialize, and join the events with the features when necessary. The downside is that it would require more networking.
 
-The predictions for every model are being stored in RedPanda. This allows comparing models with each other in real-time. In theory, it would be possible to build a model selection mechanism with Materialize. At each timestamp, the best model would be determined with respect to its previous predictions. The best model at a given timestamp would be the one who's predictions should actually be the one that should be served.
+The predictions for every model are being stored in RedPanda. This allows comparing models with each other in real-time. In theory, it is possible to build a model selection mechanism with Materialize. At each timestamp, the best model would be determined with respect to its previous predictions. The best model at a given timestamp would be the one who's predictions should actually be the one that get served.
 
-There is, of course, a lot more to discuss. I haven't even touch the user experience of building models, testing them offline, deploying them, comparing them, promoting them, etc. There's a lot of work to do to turn this demo into a fully-fledged piece of software that anyone could use to deploy an online machine learning. This is something we're trying to tackled within the [Beaver](https://github.com/online-ml/beaver) project.
+Of course, there is, a lot more to discuss. I haven't even discussed the user experience of building models, testing them offline, deploying them, comparing them, promoting them, etc. There's a lot of work left to turn this demo into a fully-fledged piece of software that anyone could use to deploy any number of online machine learning models. This is something we're trying to tackle within the [Beaver](https://github.com/online-ml/beaver) project.
 
 ## License
 
