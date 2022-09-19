@@ -38,7 +38,7 @@ The first service is in charge of simulating the data stream. For each trip, it 
     <img width="80%" src="screenshots/simulation.png">
 </div>
 
-All events are stored in the Redpanda message queue. These then get enriched by Materialize, which computes real-time features and joins them with each taxi departure. The [`inference`](inference) service listens to Materialize with a [`TAIL` query](https://materialize.com/docs/sql/tail/). For every sample, the service loops through each model, generates a prediction, and sends the `(trip_id, model, prediction)` triplet to RedPanda.
+All events are stored in the Redpanda message queue. These then get enriched by Materialize, which computes real-time features and joins them with each taxi departure. The [`inference`](inference) service listens to Materialize with a [`TAIL` query](https://materialize.com/docs/sql/tail/). For every sample, the service loops through each model, generates a prediction, and sends the `(trip_id, model, features, prediction)` information to RedPanda.
 
 <div align="center">
     <img width="80%" src="screenshots/inference.png">
@@ -46,8 +46,15 @@ All events are stored in the Redpanda message queue. These then get enriched by 
 
 At this point, there are three topics in RedPanda: `drop_offs`, `pick_ups`, and `predictions`. Materialize is leveraged to join m all on the `trip_id` key they share. This allows measuring the actual trip duration, which can then be compared to each prediction, thereby allowing to monitor the live performance of each model. It's also possible to measure the prediction lag: the elapsed time between when a pick-up event was emitted, and when a prediction was made. This all gets displayed in auto-refreshing Streamlit app.
 
+</br>
 <div align="center">
-    <img width="80%" src="screenshots/monitoring.gif">
+    <img width="70%" src="screenshots/monitoring.gif">
+</div>
+
+The `predictions`, which holds the `features` were used, is joined with the other topics to generate labelled data. This is listened to by the `learning` service. The latter updates each model for every trip that ends. The models are sent back to Redis every 30 seconds. The `inference` service also refreshes its models every 30 seconds.
+
+<div align="center">
+    <img width="70%" src="screenshots/learning.png">
 </div>
 
 ## Running it yourself
