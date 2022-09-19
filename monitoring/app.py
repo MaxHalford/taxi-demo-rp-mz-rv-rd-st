@@ -9,12 +9,14 @@ st.set_page_config(
 )
 
 st.title('Live monitoring')
+placeholder = st.empty()
 
 dsn = "postgresql://materialize@materialize:6875/materialize?sslmode=disable"
 conn = psycopg.connect(dsn)
 conn.autocommit = True
 
-placeholder = st.empty()
+# We define the views before entering the loop for performance reasons. Materialize will keep the
+# views in memory and update them incrementally.
 
 with conn.cursor() as cur:
     cur.execute("""
@@ -69,12 +71,14 @@ while True:
 
         with placeholder.container():
 
+            # Display operational metrics
             if ops_perf:
                 st.header('⚡ Operational metrics')
                 columns = st.columns(len(model_perf))
                 for (metric, value), col in zip(ops_perf.items(), columns):
                     col.metric(metric, value)
 
+            # Display the performance of each model
             if model_perf:
                 st.header('🎯 Model performance')
                 columns = st.columns(len(model_perf))

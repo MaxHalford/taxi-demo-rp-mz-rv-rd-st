@@ -4,7 +4,7 @@ This is a self-contained demo using [Redpanda](https://redpanda.com/), [Material
 
 The purpose of this contrived example is to demonstrate how the streaming analytics ecosystem can work together 🤝
 
-Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. [Kafka](https://kafka.apache.org/) could replace Redpanda. [Flink](https://flink.apache.org/), [Pinot](https://pinot.apache.org/), or [Bytewax](https://www.bytewax.io/) could stand in for Materialize. You may also want to use a feature store such as [Feast](https://www.tecton.ai/feast/) if that floats your boat. Redis could be replaced with any other storage backend, or even a dedicated model store like [MLflow](https://www.mlflow.org/docs/latest/model-registry.html). A tool other than Metabase could be used for visual monitoring.
+Each technology has been picked for a particular purpose, but each one could be replaced with an alternative. [Kafka](https://kafka.apache.org/) could replace Redpanda. [Flink](https://flink.apache.org/), [Pinot](https://pinot.apache.org/), or [Bytewax](https://www.bytewax.io/) could stand in for Materialize. You may also want to use a feature store such as [Feast](https://www.tecton.ai/feast/) if that floats your boat. Redis could be replaced with any other storage backend, or even a dedicated model store like [MLflow](https://www.mlflow.org/docs/latest/model-registry.html). Any other dashboarding tool other than Streamlit could be used for visual monitoring.
 
 ## Architecture
 
@@ -44,14 +44,14 @@ All events are stored in the Redpanda message queue. These then get enriched by 
     <img width="80%" src="screenshots/inference.png">
 </div>
 
-At this point, there are three topics in RedPanda: `drop_offs`, `pick_ups`, and `predictions`. Materialize is leveraged to join m all on the `trip_id` key they share. This allows measuring the actual trip duration, which can then be compared to each prediction, thereby allowing to monitor the live performance of each model. It's also possible to measure the prediction lag: the elapsed time between when a pick-up event was emitted, and when a prediction was made. This all gets displayed in auto-refreshing Streamlit app.
+At this point, there are three topics in RedPanda: `drop_offs`, `pick_ups`, and `predictions`. The [`monitoring`](monitoring) service leverages Materialize to join m all on the `trip_id` key they share. This allows measuring the actual trip duration, which can then be compared to each prediction, thereby allowing to monitor the live performance of each model. It's also possible to measure the prediction lag: the elapsed time between when a pick-up event was emitted, and when a prediction was made. This all gets displayed in auto-refreshing Streamlit app.
 
 </br>
 <div align="center">
     <img width="70%" src="screenshots/monitoring.gif">
 </div>
 
-The `predictions`, which holds the `features` were used, is joined with the other topics to generate labelled data. This is listened to by the `learning` service. The latter updates each model for every trip that ends. The models are sent back to Redis every 30 seconds. The `inference` service also refreshes its models every 30 seconds.
+The `predictions` topic, which holds the `features` were used, is joined with the other topics to generate labelled data. This is listened to by the [`learning`](learning) service. The latter updates each model every time a trip ends. The models are sent back to Redis every 30 seconds. The `inference` service also refreshes its models every 30 seconds. Redis thus acts as a dead drop for the `inference` and `learning` services to coordinate with another.
 
 <div align="center">
     <img width="80%" src="screenshots/learning.png">
