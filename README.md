@@ -54,7 +54,7 @@ At this point, there are three topics in RedPanda: `drop_offs`, `pick_ups`, and 
 The `predictions`, which holds the `features` were used, is joined with the other topics to generate labelled data. This is listened to by the `learning` service. The latter updates each model for every trip that ends. The models are sent back to Redis every 30 seconds. The `inference` service also refreshes its models every 30 seconds.
 
 <div align="center">
-    <img width="70%" src="screenshots/learning.png">
+    <img width="80%" src="screenshots/learning.png">
 </div>
 
 ## Running it yourself
@@ -92,18 +92,19 @@ docker compose down --rmi all -v --remove-orphans
 
 ## Going further
 
-This demo is only way of doing online machine learning. It's also quite narrow, as it's a supervised learning task, which is arguably simpler to reason about than, say, a recommender system. There are a lot of rabbit holes to explore. Here are a bunch of thoughts organised into paragraphs to give some food for thought.
+This demo is only one way of doing online machine learning. It's also quite narrow, as it's a supervised learning task, which is arguably simpler to reason about than, say, a recommender system. There are a lot of rabbit holes to explore. Here are a bunch of thoughts loosely organised to give some food for thought.
 
-The features `x` used during inference are stored aside -- in the message bus. They are then joined -- thanks to Materialize -- with the label `y` once it arrives. That pair `(x, y)` is fed into the model for learning. This called the "log and wait" technique. You can read more about it from Fennel AI [here](https://blog.fennel.ai/p/real-world-recommendation-systems), from Tecton [here](https://www.tecton.ai/blog/time-travel-in-ml/), and from Faire [here](https://craft.faire.com/building-faires-new-marketplace-ranking-infrastructure-a53bf938aba0).
+The features `x` used during inference are stored aside -- in the message bus. They are then joined -- thanks to Materialize -- with the label `y` once it arrives. That pair `(x, y)` is fed into the model for learning. This is called the "log and wait" technique. You can read more about it from Fennel AI [here](https://blog.fennel.ai/p/real-world-recommendation-systems), from Tecton [here](https://www.tecton.ai/blog/time-travel-in-ml/), and from Faire [here](https://craft.faire.com/building-faires-new-marketplace-ranking-infrastructure-a53bf938aba0).
 
 Materialize is arguably doing most of the work in this setup. It's quite impressive how much you can do with a database and a query language on top. This is even more so true when the database does stream processing. There's many good reasons to push computation into the database. For instance, doing real-time feature engineering with Materialize is much more efficient than doing it in Python. Likewise, it's very easy to do performance monitoring in SQL once you've logged the predictions and the labels. You can read more about this "bundling into the database" idea from Ethan Rosenthal [here](https://www.ethanrosenthal.com/2022/05/10/database-bundling/).
 
-# TODO: reactive vs. proactive, message bus vs. API call
-# TODO: listening to Materialize rather than Redpanda
-# TODO: feature storage
-# TODO: inference/learning sync
-# TODO: model selection
-# TODO: Scaling, federated learning
+This system is event-driven. The simulation, which is the client, doesn't ask the system to make a prediction. Instead, it queues a taxi departure event into the system. It could then poll the system until a prediction has been made. An alternative would have been to expose an API with blocking calls. When you design an (online) machine learning system, a major decision has to be made between a reactive system driven by events, and a proactive system driven by API calls.
+
+The inference and learning services are listening to Materialize. The advantage here is that Materialize takes care of enriching the events, for instance with features, and passed them on the services. The services don't have to do this enrichment process themselves. An alternative would have been to listen to events with RedPanda, calculate features in Materialize, and join the events with the features when necessary. The downside of this is that it implies more networking.
+
+The predictions for every model are being stored in RedPanda. This allows comparing models with each other in real-time. In theory, it would be possible to build a model selection mechanism with Materialize. At each timestamp, the best model would be determined with respect to its previous predictions. The best model at a given timestamp would be the one who's predictions should actually be the one that should be served.
+
+There is, of course, a lot more to discuss. I haven't even touch the user experience of building models, testing them offline, deploying them, comparing them, promoting them, etc. There's a lot of work to do to turn this demo into a fully-fledged piece of software that anyone could use to deploy an online machine learning. This is something we're trying to tackled within the [Beaver](https://github.com/online-ml/beaver) project.
 
 ## License
 
