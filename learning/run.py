@@ -1,6 +1,7 @@
 import datetime as dt
 import dill
 import psycopg
+from river import compose
 import redis
 
 """
@@ -34,6 +35,7 @@ with conn.cursor() as cur:
         )
 
         SELECT
+            trip_id,
             model,
             features,
             duration
@@ -70,7 +72,10 @@ with conn.cursor() as cur:
 
         # Teach the model
         sample = dict(zip(columns, row))
+        trip_id = sample["trip_id"]
         model = models[sample["model"]]
         x = sample["features"]
         y = sample["duration"]
-        model.learn_one(x, y)
+        print(f'Learning on #{trip_id} with {sample["model"]}')
+        with compose.warm_up_mode():
+            model.learn_one(x, y)

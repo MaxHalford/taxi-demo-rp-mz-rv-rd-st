@@ -31,8 +31,6 @@ if __name__ == "__main__":
     model_store = redis.Redis(host="redis", port=6379)
     models = {
         "linear-regression": preprocessing.StandardScaler() | linear_model.LinearRegression(),
-        "bayesian-linear-regression": preprocessing.StandardScaler()
-        | linear_model.BayesianLinearRegression(),
         "decision-tree": tree.HoeffdingAdaptiveTreeRegressor(),
         "nearest-neighbors": preprocessing.StandardScaler() | neighbors.KNNRegressor(),
     }

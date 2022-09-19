@@ -30,7 +30,13 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 🐳 The system is Dockerized, which reduces the burden of connecting the different parts with each other.
 
-## Video demonstation
+## Demo
+
+The first service is in charge of simulating the data stream. For each trip, it first emits an event indicating a taxi has departed. Another event is sent ince the taxi has arrived.
+
+<div align="center">
+    <img width="80%" src="screenshots/simulation.png">
+</div>
 
 ## Running it yourself
 
