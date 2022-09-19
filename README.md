@@ -32,10 +32,22 @@ Each technology has been picked for a particular purpose, but each one could be 
 
 ## Demo
 
-The first service is in charge of simulating the data stream. For each trip, it first emits an event indicating a taxi has departed. Another event is sent ince the taxi has arrived.
+The first service is in charge of simulating the data stream. For each trip, it first emits an event indicating a taxi has departed. Another event is sent once the taxi arrives. This is all managed by the [`simulation`](simulation) service, which loops over the data at 10 times the actual speed the events occur in the dataset. Before this all happens, the service also uploads some models to Redis, which acts as a model store.
 
 <div align="center">
     <img width="80%" src="screenshots/simulation.png">
+</div>
+
+All events are stored in the Redpanda message queue. These then get enriched by Materialize, which computes real-time features and joins them with each taxi departure. The [`inference`](inference) service listens to Materialize with a [`TAIL` query](https://materialize.com/docs/sql/tail/). For every sample, the service loops through each model, generates a prediction, and sends the `(trip_id, model, prediction)` triplet to RedPanda.
+
+<div align="center">
+    <img width="80%" src="screenshots/inference.png">
+</div>
+
+At this point, there are three topics in RedPanda: `drop_offs`, `pick_ups`, and `predictions`. Materialize is leveraged to join m all on the `trip_id` key they share. This allows measuring the actual trip duration, which can then be compared to each prediction, thereby allowing to monitor the live performance of each model. It's also possible to measure the prediction lag: the elapsed time between when a pick-up event was emitted, and when a prediction was made. This all gets displayed in auto-refreshing Streamlit app.
+
+<div align="center">
+    <img width="80%" src="screenshots/monitoring.gif">
 </div>
 
 ## Running it yourself
