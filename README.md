@@ -18,11 +18,11 @@ The purpose of this contrived example is to demonstrate how the streaming analyt
 
 🍥 Materialize consumes the pick-up and drop-off topics from Redpanda, and does stream processing on top. It keeps track of the system as a whole, builds aggregate features in real-time, and monitors the model's predictive performance.
 
-🌊 A River model is listening to Materialize for taxi pick-ups. It makes a prediction each time a taxi departs. The prediction is sent to Redpanda, and then gets picked up by Materialize.
+🌊 Several River models are listening to Materialize for taxi pick-ups. Each one makes a prediction for every taxi that departs. The predictions is sent to Redpanda, and then get picked up by Materialize.
 
-🔮 The River model is also listening to Materialize for taxi drop-off. Each time a taxi arrives, Materialize joins the original features with the trip duration. This labelled sample is fed into the River model.
+🔮 The River models are also listening to Materialize for taxi drop-offs. Each time a taxi arrives, Materialize joins the original features with the trip duration. This labelled sample is fed into each River model.
 
-📮 The [inference](inference/) and [learning](learning/) services coordinate with one another by storing the model in a Redis instance. The latter acts as a primitive model store.
+📮 The [inference](inference/) and [learning](learning/) services coordinate with one another thanks to a Redis instance where the models are stored. Redis thus acts as a primitive model store.
 
 💅🏻 Streamlit is used to monitor the overall system in real-time.
 
