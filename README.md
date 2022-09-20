@@ -38,13 +38,13 @@ The first service is in charge of simulating the data stream. For each trip, it 
     <img width="80%" src="screenshots/simulation.png">
 </div>
 
-All events are stored in the Redpanda message queue. These then get enriched by Materialize, which computes real-time features and joins them with each taxi departure. The [`inference`](inference) service listens to Materialize with a [`TAIL` query](https://materialize.com/docs/sql/tail/). For every sample, the service loops through each model, generates a prediction, and sends the `(trip_id, model, features, prediction)` information to RedPanda.
+All events are stored in the Redpanda message bus. These then get enriched by Materialize, which computes real-time features and joins them with each taxi departure. The [`inference`](inference) service listens to Materialize with a [`TAIL` query](https://materialize.com/docs/sql/tail/). For every sample, the service loops through each model, generates a prediction, and sends the `(trip_id, model, features, prediction)` information to Redpanda.
 
 <div align="center">
     <img width="80%" src="screenshots/inference.png">
 </div>
 
-At this point, there are three topics in RedPanda: `drop_offs`, `pick_ups`, and `predictions`. The [`monitoring`](monitoring) service leverages Materialize to join m all on the `trip_id` key they share. This allows measuring the actual trip duration, which can then be compared to each prediction, thereby allowing to monitor the live performance of each model. It's also possible to measure the prediction lag: the elapsed time between when a pick-up event was emitted, and when a prediction was made. This all gets displayed in auto-refreshing Streamlit app.
+At this point, there are three topics in Redpanda: `drop_offs`, `pick_ups`, and `predictions`. The [`monitoring`](monitoring) service leverages Materialize to join m all on the `trip_id` key they share. This allows measuring the actual trip duration, which can then be compared to each prediction, thereby allowing to monitor the live performance of each model. It's also possible to measure the prediction lag: the elapsed time between when a pick-up event was emitted, and when a prediction was made. This all gets displayed in auto-refreshing Streamlit app.
 
 </br>
 <div align="center">
@@ -103,9 +103,9 @@ Materialize is arguably doing most of the work in this setup. It's quite impress
 
 This system is event-driven. The simulation, which is the client, doesn't ask the system to make a prediction. Instead, it queues a taxi departure event into the system. It could then poll the system until a prediction has been made. An alternative would have been to expose an API with blocking calls. When you design an (online) machine learning system, a major decision has to be made between a reactive system driven by events, and a proactive system driven by API calls.
 
-The inference and learning services are listening to Materialize. The advantage here is that Materialize takes care of enriching the events, for instance with features, and passes them on the services. The services don't have to do this enrichment process themselves. An alternative would have been to listen to events with RedPanda, calculate features in Materialize, and join the events with the features when necessary. The downside is that it would require more networking.
+The inference and learning services are listening to Materialize. The advantage here is that Materialize takes care of enriching the events, for instance with features, and passes them on the services. The services don't have to do this enrichment process themselves. An alternative would have been to listen to events with Redpanda, calculate features in Materialize, and join the events with the features when necessary. The downside is that it would require more networking.
 
-The predictions for every model are being stored in RedPanda. This allows comparing models with each other in real-time. In theory, it is possible to build a model selection mechanism with Materialize. At each timestamp, the best model would be determined with respect to its previous predictions. The best model at a given timestamp would be the one who's predictions should actually be the one that get served.
+The predictions for every model are being stored in Redpanda. This allows comparing models with each other in real-time. In theory, it is possible to build a model selection mechanism with Materialize. At each timestamp, the best model would be determined with respect to its previous predictions. The best model at a given timestamp would be the one who's predictions should actually be the one that get served.
 
 Of course, there is, a lot more to discuss. I haven't even discussed the user experience of building models, testing them offline, deploying them, comparing them, promoting them, etc. There's a lot of work left to turn this demo into a fully-fledged piece of software that anyone could use to deploy any number of online machine learning models. This is something we're trying to tackle within the [Beaver](https://github.com/online-ml/beaver) project.
 
