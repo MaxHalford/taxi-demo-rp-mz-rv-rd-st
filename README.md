@@ -38,7 +38,7 @@ The first service is in charge of simulating the data stream. For each trip, it 
     <img width="80%" src="screenshots/simulation.png">
 </div>
 
-All events are stored in the Redpanda message bus. These then get enriched by Materialize, which computes real-time features and joins them with each taxi departure. The [`inference`](inference) service listens to Materialize with a [`TAIL` query](https://materialize.com/docs/sql/tail/). For every sample, the service loops through each model, generates a prediction, and sends the `(trip_id, model, features, prediction)` information to Redpanda.
+All events are stored in the Redpanda message bus. These then get enriched by Materialize, which computes real-time features and joins them with each taxi departure. The [`inference`](inference) service listens to Materialize with a [`TAIL` query](https://materialize.com/docs/sql/tail/). For every sample, the service loops through each model, generates a prediction, and sends the `(trip_id, model_name, features, prediction)` information to Redpanda.
 
 <div align="center">
     <img width="80%" src="screenshots/inference.png">
