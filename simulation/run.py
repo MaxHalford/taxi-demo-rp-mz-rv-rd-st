@@ -31,7 +31,9 @@ if __name__ == "__main__":
     model_store = redis.Redis(host="redis", port=6379)
     models = {
         "linear-regression": preprocessing.StandardScaler() | linear_model.LinearRegression(),
-        "decision-tree": tree.HoeffdingAdaptiveTreeRegressor(),
+        "decision-tree": preprocessing.StandardScaler() | tree.HoeffdingAdaptiveTreeRegressor(
+            max_depth=20,
+        ),
         "nearest-neighbors": preprocessing.StandardScaler() | neighbors.KNNRegressor(),
     }
     for model_name, model in models.items():
