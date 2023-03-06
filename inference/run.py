@@ -94,7 +94,7 @@ with conn.cursor() as cur:
 
         # Make predictions for each model
         for model_name, model in models.items():
-            predicted_duration = min(round(model.predict_one(trip_features)), 0)
+            predicted_duration = max(model.predict_one(trip_features), 0)
             print(f'#{trip_id} - {model_name} - predicted {dt.timedelta(seconds=predicted_duration)} seconds')
             message_bus.send(
                 topic="predictions",
